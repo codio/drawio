@@ -150,6 +150,11 @@ abstract public class AbsCache extends HttpServlet implements AbsComm
 							? ".diagrams.net/"
 							: null)
 					: domain;
+			domain = (domain == null) ? (ref.toLowerCase()
+					.matches("^https?://([a-z0-9,-]+[.])*codio[.]test/.*")
+							? ".codio.test/"
+							: null)
+					: domain;
 
 			if (stats || alive || domain != null)
 			{
@@ -366,6 +371,11 @@ abstract public class AbsCache extends HttpServlet implements AbsComm
 			domain = (domain == null) ? (ref.toLowerCase()
 					.matches("^https?://([a-z0-9,-]+[.])*diagrams[.]net/.*")
 							? ".diagrams.net/"
+							: null)
+					: domain;
+			domain = (domain == null) ? (ref.toLowerCase()
+					.matches("^https?://([a-z0-9,-]+[.])*codio[.]test/.*")
+							? ".codio.test/"
 							: null)
 					: domain;
 

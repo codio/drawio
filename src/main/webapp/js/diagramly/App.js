@@ -250,6 +250,11 @@ App.MODE_EMBED = 'embed';
 App.MODE_ATLAS = 'atlas';
 
 /**
+ * Codio App Mode
+ */
+App.MODE_CODIO = 'codio';
+
+/**
  * Sets the delay for autosave in milliseconds. Default is 2000.
  */
 App.DROPBOX_APPKEY = window.DRAWIO_DROPBOX_ID;
@@ -274,6 +279,11 @@ App.ONEDRIVE_URL = mxClient.IS_IE11? 'https://js.live.net/v7.2/OneDrive.js' : 'j
  * Trello URL
  */
 App.TRELLO_URL = 'https://api.trello.com/1/client.js';
+
+/**
+ * Codio URL
+ */
+App.CODIO_URL = 'https://codio.com/ext/iframe/base/static/codio-client.js';
 
 /**
  * Trello JQuery dependency
@@ -564,6 +574,8 @@ App.getStoredMode = function()
 						window.TrelloClient = null;
 					}
 				}
+
+				// todo: codio CodioClient
 			}
 		}
 	}
@@ -1035,6 +1047,8 @@ App.main = function(callback, createUi)
 							{
 								window.TrelloClient = null;
 							}
+
+							// todo: codio CodioClient
 						}
 						
 						if (callback != null)
@@ -1626,6 +1640,12 @@ App.prototype.init = function()
 
 		initTrelloClient();
 	}
+
+	/*
+		todo: codio CodioClient
+		new CodioClient ?
+		or add to window ?
+	*/
 
 	/**
 	 * Creates drive client with all required libraries are available.
@@ -4825,6 +4845,7 @@ App.prototype.isModeEnabled = function(mode)
 			mxClient.IS_SVG && (document.documentMode == null ||
 				document.documentMode > 9);
 	}
+	// todo: codio CodioClient
 	else
 	{
 		return false;
@@ -5606,6 +5627,10 @@ App.prototype.getLibraryStorageHint = function(file)
 	else if (file.constructor == LocalLibrary)
 	{
 		tip += ' (' + mxResources.get('device') + ')';
+	}
+	else if (file.constructor == CodioLibrary)
+	{
+		tip += ' (' + mxResources.get('codio') + ')';
 	}
 
 	return tip;
