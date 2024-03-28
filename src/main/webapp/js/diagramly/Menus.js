@@ -4103,6 +4103,14 @@
 					dlg.init();
 				}, parent);
 			}
+
+			if (editorUi.isModeReady(App.MODE_CODIO))
+			{
+				menu.addItem(mxResources.get('codio') + '...', null, function()
+				{
+					editorUi.pickFile(App.MODE_CODIO);
+				}, parent);
+			}
 		}));
 		
 		if (Editor.enableCustomLibraries)

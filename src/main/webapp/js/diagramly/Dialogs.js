@@ -4928,7 +4928,7 @@ var SaveDialog = function(editorUi, title, saveFn, disabledModes, data, mimeType
 		addStorageEntry(App.MODE_GITHUB, null, null, null, null, 'pick');
 		addStorageEntry(App.MODE_GITLAB, null, null, null, null, 'pick');
 		addStorageEntry(App.MODE_TRELLO);
-		addStorageEntry(App.MODE_CODIO, null, null, null, null, 'pick');
+		addStorageEntry(App.MODE_CODIO);
 
 		var allowDevice = !Editor.useLocalStorage || urlParams['storage'] == 'device' ||
 			(editorUi.getCurrentFile() != null && urlParams['noDevice'] != '1');

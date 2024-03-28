@@ -2937,6 +2937,7 @@
 	 */
 	EditorUi.prototype.fileLoaded = function(file, noDialogs, success)
 	{
+		console.trace('EditorUI fileLoaded file, noDialogs, success', file, noDialogs, success)
 		var oldFile = this.getCurrentFile();
 		this.fileLoadedError = null;
 		this.fileEditable = null;
@@ -3007,6 +3008,8 @@
 				// file format for initial save after starting realtime
 				this.openingFile = true;
 				this.setCurrentFile(file);
+				console.trace('set current file and listen', file);
+				debugger;
 				file.addListener('descriptorChanged', this.descriptorChangedListener);
 				file.addListener('contentChanged', this.descriptorChangedListener);
 				file.open();
@@ -17772,6 +17775,12 @@
 		}
 
 		if (this.oneDrive != null || typeof window.OneDriveClient === 'function')
+		{
+			serviceCount++
+		}
+
+		// todo: codio. should be typeof window.codio ???
+		if (this.codio != null || typeof window.CodioClient === 'function')
 		{
 			serviceCount++
 		}

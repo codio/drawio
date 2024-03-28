@@ -255,6 +255,11 @@ App.MODE_ATLAS = 'atlas';
 App.MODE_CODIO = 'codio';
 
 /**
+ * Codio URL
+ */
+App.CODIO_URL = 'https://codio.com/ext/iframe/base/static/codio-client.js';
+
+/**
  * Sets the delay for autosave in milliseconds. Default is 2000.
  */
 App.DROPBOX_APPKEY = window.DRAWIO_DROPBOX_ID;
@@ -279,11 +284,6 @@ App.ONEDRIVE_URL = mxClient.IS_IE11? 'https://js.live.net/v7.2/OneDrive.js' : 'j
  * Trello URL
  */
 App.TRELLO_URL = 'https://api.trello.com/1/client.js';
-
-/**
- * Codio URL
- */
-App.CODIO_URL = 'https://codio.com/ext/iframe/base/static/codio-client.js';
 
 /**
  * Trello JQuery dependency
@@ -327,6 +327,7 @@ App.startTime = new Date();
  * Defines plugin IDs for loading via p URL parameter. Update the table at
  * https://www.drawio.com/doc/faq/supported-url-parameters
  */
+// todo: codio.
 App.pluginRegistry = {'4xAKTrabTpTzahoLthkwPNUn': 'plugins/explore.js',
 	'ex': 'plugins/explore.js',
 	'ac': 'plugins/connect.js', 'acj': 'plugins/connectJira.js',
@@ -576,6 +577,31 @@ App.getStoredMode = function()
 				}
 
 				// todo: codio CodioClient
+				// copypaste:
+				// Loads Trello for all browsers but < IE10 if not disabled or if enabled and in embed mode
+				// if (typeof window.CodioClient === 'function')
+				// {
+				// 	// todo: codio. should load codio-client.js if not loaded then unload CodioClient
+				// 	if (urlParams['codio'] != '0' && isSvgBrowser && !mxClient.IS_IE11 &&
+				// 		(document.documentMode == null || document.documentMode >= 10))
+				// 	{
+				// 		// Immediately loads client
+				// 		if (App.mode == App.MODE_CODIO || (window.location.hash != null &&
+				// 			window.location.hash.substring(0, 2) == '#C'))
+				// 		{
+				// 			mxscript(App.CODIO_URL);
+				// 		}
+				// 		else if (urlParams['chrome'] == '0')
+				// 		{
+				// 			window.CodioClient = null;
+				// 		}
+				// 	}
+				// 	else
+				// 	{
+				// 		// Disables loading of client
+				// 		window.CodioClient = null;
+				// 	}
+				// }
 			}
 		}
 	}
@@ -1048,7 +1074,7 @@ App.main = function(callback, createUi)
 								window.TrelloClient = null;
 							}
 
-							// todo: codio CodioClient
+							// todo: codio CodioClient ??
 						}
 						
 						if (callback != null)
@@ -1504,6 +1530,7 @@ App.prototype.initializeViewerMode = function()
  */
 App.prototype.init = function()
 {
+	console.trace('app init');
 	if (App.blockedAncestorFrames())
 	{
 		return;
@@ -1646,6 +1673,42 @@ App.prototype.init = function()
 		new CodioClient ?
 		or add to window ?
 	*/
+	/**
+	 * Lazy-loading for Codio
+	 */
+	if (urlParams['embed'] != '1' || urlParams['codio'] == '1')
+	{
+		/**
+		 * Creates Codio client if all required libraries are available.
+		 */
+		var initCodioClient = mxUtils.bind(this, function()
+		{
+			// todo: codio. should load without check
+			console.log('typeof window.codio', typeof window.codio !== 'undefined');
+			if (typeof window.codio !== 'undefined')
+			{
+				try
+				{
+					console.log('new codio client');
+					this.codio = new CodioClient(this);
+				}
+				catch (e)
+				{
+					if (window.console != null)
+					{
+						console.error(e);
+					}
+				}
+			}
+			else if (window.DrawCodioClientCallback == null)
+			{
+				window.DrawCodioClientCallback = initCodioClient;
+			}
+		});
+
+		initCodioClient();
+	}
+
 
 	/**
 	 * Creates drive client with all required libraries are available.
@@ -3739,6 +3802,7 @@ App.prototype.showSplash = function(force)
 	
 	var showSecondDialog = mxUtils.bind(this, function()
 	{
+		console.trace('showSecondDialog', this.mode);
 		var dlg = new SplashDialog(this);
 		
 		this.showDialog(dlg.container, 340, (mxClient.IS_CHROMEAPP ||
@@ -3766,6 +3830,8 @@ App.prototype.showSplash = function(force)
 	}
 	else if (!mxClient.IS_CHROMEAPP && (this.mode == null || force))
 	{
+		// todo: codio. show dialog
+		console.log('show storage dialog', this.mode);
 		var rowLimit = (serviceCount == 4) ? 2 : 3;
 		
 		var dlg = new StorageDialog(this, mxUtils.bind(this, function()
@@ -4109,7 +4175,8 @@ App.prototype.pickFile = function(mode)
 						{
 							filename = filename.substring(0, filename.length - 4) + '.drawio';
 						}
-		
+
+						console.log('open local file mode', mode);
 						this.fileLoaded((mode == App.MODE_BROWSER) ?
 							new StorageFile(this, xml, filename) :
 							new LocalFile(this, xml, filename));
@@ -4185,14 +4252,15 @@ App.prototype.pickLibrary = function(mode)
 	});
 	
 	if (mode == App.MODE_GOOGLE || mode == App.MODE_DROPBOX || mode == App.MODE_ONEDRIVE ||
-		mode == App.MODE_GITHUB || mode == App.MODE_GITLAB || mode == App.MODE_TRELLO)
+		mode == App.MODE_GITHUB || mode == App.MODE_GITLAB || mode == App.MODE_TRELLO || mode == App.MODE_CODIO)
 	{
 		var peer = (mode == App.MODE_GOOGLE) ? this.drive :
 			((mode == App.MODE_ONEDRIVE) ? this.oneDrive :
 			((mode == App.MODE_GITHUB) ? this.gitHub :
 			((mode == App.MODE_GITLAB) ? this.gitLab :
 			((mode == App.MODE_TRELLO) ? this.trello :
-			this.dropbox))));
+			((mode == App.MODE_CODIO) ? this.codio :
+			this.dropbox)))));
 		
 		if (peer != null)
 		{
@@ -4391,6 +4459,15 @@ App.prototype.saveLibrary = function(name, images, file, mode, noSpin, noReload,
 				else if (mode == App.MODE_ONEDRIVE && this.oneDrive != null && this.spinner.spin(document.body, mxResources.get('inserting')))
 				{
 					this.oneDrive.insertLibrary(name, xml, mxUtils.bind(this, function(newFile)
+					{
+						this.spinner.stop();
+						this.hideDialog(true);
+						this.libraryLoaded(newFile, images);
+					}), error, folderId);
+				}
+				else if (mode == App.MODE_CODIO && this.codio != null && this.spinner.spin(document.body, mxResources.get('inserting')))
+				{
+					this.codio.insertLibrary(name, xml, mxUtils.bind(this, function(newFile)
 					{
 						this.spinner.stop();
 						this.hideDialog(true);
@@ -4789,6 +4866,10 @@ App.prototype.getModeForChar = function(char)
 	{
 		return App.MODE_TRELLO;
 	}
+	else if (char == 'C')
+	{
+		return App.MODE_CODIO;
+	}
 	else
 	{
 		return null;
@@ -4846,6 +4927,10 @@ App.prototype.isModeEnabled = function(mode)
 				document.documentMode > 9);
 	}
 	// todo: codio CodioClient
+	else if (mode == App.MODE_CODIO)
+	{
+		return this.codio != null;
+	}
 	else
 	{
 		return false;
@@ -4980,6 +5065,10 @@ App.prototype.createFile = function(title, data, libs, mode, done, replace, fold
 			else if (mode == App.MODE_ONEDRIVE && this.oneDrive != null)
 			{
 				this.oneDrive.insertFile(title, data, fileCreated, error, false, folderId);
+			}
+			else if (mode == App.MODE_CODIO && this.codio != null)
+			{
+				this.codio.insertFile(title, data, fileCreated, error, false, folderId);
 			}
 			else if (mode == App.MODE_BROWSER)
 			{
@@ -5190,6 +5279,7 @@ App.prototype.fileCreated = function(file, libs, replace, done, clibs, success)
  */
 App.prototype.loadFile = function(id, sameWindow, file, success, force)
 {
+	console.trace('app load file id, sameWindow, file, success, force', id, sameWindow, file, success, force);
 	if (urlParams['openInSameWin'] == '1' || navigator.standalone)
 	{
 		sameWindow = true;
@@ -5199,6 +5289,7 @@ App.prototype.loadFile = function(id, sameWindow, file, success, force)
 	
 	var fn2 = mxUtils.bind(this, function()
 	{
+		console.log('fn2 id', id);
 		if (id == null || id.length == 0)
 		{
 			this.editor.setStatus('');
@@ -5456,10 +5547,12 @@ App.prototype.loadFile = function(id, sameWindow, file, success, force)
 			else
 			{
 				var mode = this.getModeForChar(id.charAt(0));
+				console.trace('load file by mode char', id.charAt(0), 'mode', mode);
 
 				var doLoadFile = mxUtils.bind(this, function()
 				{
 					var peer = this.getServiceForName(mode);
+					console.log('doLoadFile mode', mode, 'peer', peer);
 
 					if (peer == null)
 					{
@@ -5887,6 +5980,13 @@ App.prototype.loadLibraries = function(libs, done)
 								if (this.oneDrive != null && this.oneDrive.getUser() != null)
 								{
 									peer = this.oneDrive;
+								}
+							}
+							else if (service == 'C')
+							{
+								if (this.codio != null && this.codio.user != null)
+								{
+									peer = this.codio;
 								}
 							}
 							
@@ -6518,6 +6618,10 @@ App.prototype.getServiceForName = function(name)
 	{
 		return this.trello;
 	}
+	else if (name == App.MODE_CODIO)
+	{
+		return this.codio;
+	}
 	else
 	{
 		return null;
@@ -6611,6 +6715,7 @@ App.prototype.pickFolder = function(mode, fn, enabled, direct, force, returnPick
 			fn(cardId);
 		}));
 	}
+	// todo: codio
 	else
 	{
 		EditorUi.prototype.pickFolder.apply(this, arguments);
@@ -6713,6 +6818,7 @@ App.prototype.exportFile = function(data, filename, mimeType, base64Encoded, mod
 			}), false, folderId);
 		}
 	}
+	// todo: codio
 	else if (mode == App.MODE_BROWSER)
 	{
 		if (window.StorageFile != null && !base64Encoded &&
@@ -7134,6 +7240,12 @@ App.prototype.updateHeader = function()
 				else if (mode == App.MODE_TRELLO)
 				{
 					this.appIcon.style.backgroundImage = 'url(' + IMAGE_PATH + '/trello-logo-white-orange.svg)';
+					this.appIcon.style.backgroundSize = '70% 70%';
+				}
+				else if (mode == App.MODE_CODIO)
+				{
+					// todo: codio
+					this.appIcon.style.backgroundImage = 'url(' + IMAGE_PATH + '/codio-log-white.svg)';
 					this.appIcon.style.backgroundSize = '70% 70%';
 				}
 			}
@@ -8079,7 +8191,8 @@ App.prototype.toggleUserPanel = function()
 				}
 			}), mxResources.get('trello'));
 		}
-		
+		// todo: codio.
+
 		if (uiTheme == 'min')
 		{
 			var file = this.getCurrentFile();
