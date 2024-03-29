@@ -260,6 +260,7 @@ GitHubFile.prototype.saveFile = function(title, revision, success, error, unload
 		{
 			if (this.getTitle() == title)
 			{
+				// todo: codio. I like this saving code.
 				try
 				{
 					// Sets shadow modified state during save

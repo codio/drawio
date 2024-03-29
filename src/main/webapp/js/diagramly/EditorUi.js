@@ -277,7 +277,8 @@
 	{
 		try
 		{
-			if (window.console != null && urlParams['test'] == '1')
+			if (window.console != null)
+			// if (window.console != null && urlParams['test'] == '1')
 			{
 				var args = [new Date().toISOString()];
 				
@@ -3009,7 +3010,6 @@
 				this.openingFile = true;
 				this.setCurrentFile(file);
 				console.trace('set current file and listen', file);
-				debugger;
 				file.addListener('descriptorChanged', this.descriptorChangedListener);
 				file.addListener('contentChanged', this.descriptorChangedListener);
 				file.open();

@@ -1,7 +1,9 @@
 CodioFile = function(ui, data, meta)
 {
     DrawioFile.call(this, ui, data);
+    
     this.meta = meta;
+    this.peer = this.ui.codio;
 }
 
 mxUtils.extend(CodioFile, DrawioFile);
@@ -75,13 +77,33 @@ CodioFile.prototype.setDescriptor = function(desc)
     return this.meta = desc;
 };
 
-CodioFile.prototype.save = function(revision, success, error)
+CodioFile.prototype.getDescriptorEtag = function(desc)
 {
+	return desc.sha;
+};
 
+CodioFile.prototype.setDescriptorEtag = function(desc, etag)
+{
+	desc.sha = etag;
+};
+
+CodioFile.prototype.save = function(revision, success, error, unloading, overwrite)
+{
+    console.trace('codio file save revision, success, error', revision, success, error);
+    DrawioFile.prototype.save.apply(this, [revision, mxUtils.bind(this, function()
+    {
+        this.saveFile(null, revision, success, error, unloading, overwrite);
+    }), error, unloading, overwrite]);
+};
+
+CodioFile.prototype.saveAs = function(title, success, error)
+{
+	this.doSave(title, success, error);
 };
 
 CodioFile.prototype.doSave = function(title, revision, success, error, unloading, overwrite)
 {
+    console.trace('codio file doSave title, revision, success, error, unloading, overwrite', title, revision, success, error, unloading, overwrite);
     var prev = this.meta.name;
     this.meta.name = title;
 
@@ -94,6 +116,7 @@ CodioFile.prototype.doSave = function(title, revision, success, error, unloading
 
 CodioFile.prototype.saveFile = function(title, revision, success, error, unloading, overwrite)
 {
+    console.log('codio file saveFile title, revision, success, error, unloading, overwrite', title, revision, success, error, unloading, overwrite);
     if (!this.isEditable())
     {
         if (success != null) {
@@ -102,43 +125,45 @@ CodioFile.prototype.saveFile = function(title, revision, success, error, unloadi
     }
     else if (!this.savingFile)
     {
-        if (this.getTitle() == title)
+        var doSave = mxUtils.bind(this, function()
         {
-            var doSave = mxUtils.bind(this, function()
+            console.log('codio file do save');
+            // Sets shadow modified state during save
+            this.savingFileTime = new Date();
+            this.setShadowModified(false);
+            this.savingFile = true;
+
+            var savedEtag = this.getCurrentEtag();
+            var savedData = this.data;
+
+            this.peer.saveFile(this, mxUtils.bind(this, function(etag)
             {
-                this.savingFile = true;
+                // Checks for changes during save
+                this.setModified(this.getShadowModified());
+                this.savingFile = false;
+                this.setDescriptorEtag(this.meta, etag);
 
-                this.ui.codio.saveFile(this, mxUtils.bind(this, function(meta, savedData)
+                this.fileSaved(savedData, savedEtag, mxUtils.bind(this, function()
                 {
-                    this.savingFile = false;
-                    this.meta = meta;
-
+                    this.contentChanged();
+                    
                     if (success != null)
                     {
                         success();
                     }
-                }), mxUtils.bind(this, function(err, req)
+                }), error);
+            }), mxUtils.bind(this, function(err, req)
+            {
+                this.savingFile = false;
+                if (error != null)
                 {
-                    this.savingFile = false;
-                    if (error != null)
-                    {
-                        error(err);
-                    }
-                })
-                );
-            });
+                    error(err);
+                }
+            })
+            );
+        });
 
-            doSave();
-        }
-        else
-        {
-            this.savingFileTime = new Date();
-            this.savingFile = true;
-
-            // todo: codio. no title
-            console.log('save without title');
-            this.savingFile = false;
-        }
+        doSave();
     }
 };
 
