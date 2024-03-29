@@ -71,19 +71,19 @@ CodioClient.prototype.pickFile = function(fn, returnObject)
     fn = (fn != null) ? fn : mxUils.bind(this, function(id)
     {
         // todo: codio what to do ?
-        this.ui.loadFile('T' + encodeURIComponent(id))
+        this.ui.loadFile('C' + encodeURIComponent(id))
     });
 };
 
 CodioClient.prototype.getFile = function(id, success, error)
 {
-    console.trace('codioclient getFIle', success, error, arguments);
     var filename = window.codio.getFileName();
+    console.trace('codioclient getFIle', success, error, 'filename', filename);
 
     window.codio.getFile(filename)
     .then(mxUtils.bind(this, function(item)
     {
-        var meta = {};
+        var meta = {'name': filename, isNew: true};
         var fileObj = new CodioFile(this.ui, item.content, meta);
         success(fileObj);
     }))
@@ -95,3 +95,17 @@ CodioClient.prototype.getFile = function(id, success, error)
         }
     });
 };
+
+CodioClient.prototype.insertLibrary = function(filename, data, success, error, folderId)
+{
+    console.log('codio client insertLibrary filename, data, success, error, folderId', filename, data, success, error, folderId);
+	this.insertFile(filename, data, success, error, true, folderId, false);
+};
+
+CodioClient.prototype.insertFile = function(filename, data, success, error)
+{
+    console.log('codio client insertFile filename, data, success, error', filename, data, success, error);
+    var meta = {'name': filename, isNew: true};
+    success(new CodioFile(this.ui, data, meta));
+};
+

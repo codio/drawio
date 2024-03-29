@@ -4467,6 +4467,7 @@ App.prototype.saveLibrary = function(name, images, file, mode, noSpin, noReload,
 				}
 				else if (mode == App.MODE_CODIO && this.codio != null && this.spinner.spin(document.body, mxResources.get('inserting')))
 				{
+					// todo: codio. what is insert library?
 					this.codio.insertLibrary(name, xml, mxUtils.bind(this, function(newFile)
 					{
 						this.spinner.stop();
@@ -5068,7 +5069,7 @@ App.prototype.createFile = function(title, data, libs, mode, done, replace, fold
 			}
 			else if (mode == App.MODE_CODIO && this.codio != null)
 			{
-				this.codio.insertFile(title, data, fileCreated, error, false, folderId);
+				this.codio.insertFile(title, data, fileCreated, error);
 			}
 			else if (mode == App.MODE_BROWSER)
 			{
