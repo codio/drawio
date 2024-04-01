@@ -2889,6 +2889,7 @@ var NewDialog = function(editorUi, compact, showName, callback, createOnly, canc
 	}
 	
 	var ext = '.drawio';
+	var filename = editorUi.defaultFilename;
 	
 	if (editorUi.mode == App.MODE_GOOGLE && editorUi.drive != null)
 	{
@@ -2918,12 +2919,18 @@ var NewDialog = function(editorUi, compact, showName, callback, createOnly, canc
 	{
 		// todo: codio. file from template?
 		ext = editorUi.codio.extension;
+		filename = editorUi.codio.getFileName();
+		withoutType = true;
 	}
 	
 	var nameInput = document.createElement('input');
-	nameInput.setAttribute('value', editorUi.defaultFilename + ext);
+	nameInput.setAttribute('value', filename + ext);
 	nameInput.style.marginLeft = '10px';
 	nameInput.style.width = (compact || smallScreen) ? '144px' : '244px';
+	if (editorUi.mode == App.MODE_CODIO && editorUi.codio != null)
+	{
+		nameInput.setAttribute('readonly', 'readonly');
+	}
 	
 	this.init = function()
 	{

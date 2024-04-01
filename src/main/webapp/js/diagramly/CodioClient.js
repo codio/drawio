@@ -9,6 +9,8 @@ CodioClient = function (editorUi)
 
 mxUtils.extend(CodioClient, DrawioClient);
 
+CodioClient.prototype.extension = '.drawio'; //TODO export to png
+
 CodioClient.prototype.getLibrary = function(id, success, error)
 {
     this.getFile(id, success, error, false, true);
@@ -110,4 +112,9 @@ CodioClient.prototype.insertFile = function(filename, data, success, error)
     console.log('codio client insertFile filename, data, success, error', filename, data, success, error);
     var meta = {'name': filename, isNew: true};
     success(new CodioFile(this.ui, data, meta));
+};
+
+CodioClient.prototype.getFileName = function()
+{
+    return window.codio.getFileName().replace('.drawio', '');
 };
