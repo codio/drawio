@@ -173,19 +173,7 @@ CodioFile.prototype.getFile = function(id, success, error)
 };
 
 // todo: codio. should be renamable ?
-// CodioClient.prototype.isRenamable = function()
-// {
-// 	return false;
-// };
-
-CodioClient.prototype.rename = function(title, success, error)
+CodioFile.prototype.isRenamable = function()
 {
-    console.log('codio client rename title, success, error', title, success, error);
-    this.title = title;
-    this.descriptorChanged();
-
-    if (success != null)
-    {
-        success();
-    }
+	return false;
 };

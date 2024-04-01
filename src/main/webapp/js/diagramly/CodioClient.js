@@ -108,4 +108,3 @@ CodioClient.prototype.insertFile = function(filename, data, success, error)
     var meta = {'name': filename, isNew: true};
     success(new CodioFile(this.ui, data, meta));
 };
-
