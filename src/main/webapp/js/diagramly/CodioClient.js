@@ -84,6 +84,9 @@ CodioClient.prototype.getFile = function(id, success, error)
     .then(mxUtils.bind(this, function(item)
     {
         var meta = {'name': filename, isNew: true};
+        if (item.content === '') {
+            item.content = this.ui.emptyDiagramXml;
+        }
         var fileObj = new CodioFile(this.ui, item.content, meta);
         success(fileObj);
     }))
