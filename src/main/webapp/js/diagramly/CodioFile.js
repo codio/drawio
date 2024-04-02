@@ -172,7 +172,6 @@ CodioFile.prototype.getFile = function(id, success, error)
     this.ui.codio.getFile(id, success, error);
 };
 
-// todo: codio. should be renamable ?
 CodioFile.prototype.isRenamable = function()
 {
 	return false;

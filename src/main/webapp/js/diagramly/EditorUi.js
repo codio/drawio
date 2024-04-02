@@ -2340,7 +2340,7 @@
 	 */
 	EditorUi.prototype.setMode = function(mode, remember)
 	{
-		this.mode = mode;
+				this.mode = mode;
 	};
 
 	/**
@@ -17856,8 +17856,12 @@
 		// Disables menus
 		this.menus.get('edit').setEnabled(active);
 		this.menus.get('view').setEnabled(active);
-		this.menus.get('importFrom').setEnabled(editable);
+		// this.menus.get('importFrom').setEnabled(editable);
 		this.menus.get('arrange').setEnabled(editable);
+		
+		this.menus.get('importFrom').setEnabled(false);
+		this.menus.get('openRecent').setEnabled(false);
+		this.menus.get('openFrom').setEnabled(false);
 		
 		// Disables connection drop downs in toolbar
 		if (this.toolbar != null)

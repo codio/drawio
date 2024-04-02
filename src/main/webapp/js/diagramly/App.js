@@ -451,14 +451,14 @@ App.getStoredMode = function()
 				urlParams['mode'] = 'dropbox';
 			}
 			
-			App.mode = urlParams['mode'];
+						App.mode = urlParams['mode'];
 		}
 			
 		if (App.mode == null)
 		{
 			// Stored mode overrides preferred mode
 			App.mode = App.getStoredMode();
-		}
+					}
 		
 		/**
 		 * Lazy loading backends.
@@ -579,29 +579,19 @@ App.getStoredMode = function()
 				// todo: codio CodioClient
 				// copypaste:
 				// Loads Trello for all browsers but < IE10 if not disabled or if enabled and in embed mode
-				// if (typeof window.CodioClient === 'function')
-				// {
-				// 	// todo: codio. should load codio-client.js if not loaded then unload CodioClient
-				// 	if (urlParams['codio'] != '0' && isSvgBrowser && !mxClient.IS_IE11 &&
-				// 		(document.documentMode == null || document.documentMode >= 10))
-				// 	{
-				// 		// Immediately loads client
-				// 		if (App.mode == App.MODE_CODIO || (window.location.hash != null &&
-				// 			window.location.hash.substring(0, 2) == '#C'))
-				// 		{
-				// 			mxscript(App.CODIO_URL);
-				// 		}
-				// 		else if (urlParams['chrome'] == '0')
-				// 		{
-				// 			window.CodioClient = null;
-				// 		}
-				// 	}
-				// 	else
-				// 	{
-				// 		// Disables loading of client
-				// 		window.CodioClient = null;
-				// 	}
-				// }
+				if (typeof window.CodioClient === 'function')
+				{
+					// Immediately loads client
+					if (App.mode == App.MODE_CODIO || (window.location.hash != null &&
+						window.location.hash.substring(0, 2) == '#C'))
+					{
+						mxscript(App.CODIO_URL);
+					}
+					else if (urlParams['chrome'] == '0')
+					{
+						window.CodioClient = null;
+					}
+				}
 			}
 		}
 	}
@@ -2762,6 +2752,7 @@ App.prototype.createBackground = function()
 	
 	App.prototype.setMode = function(mode, remember)
 	{
+		console.log('app setMode', mode);
 		editorUiSetMode.apply(this, arguments);
 		
 		// Note: UseLocalStorage affects the file dialogs
