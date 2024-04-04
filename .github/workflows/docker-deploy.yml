@@ -1,6 +1,9 @@
 name: Deploy Docker
 on: [push]
 
+env:
+  SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
+
 jobs:
   build-docker:
     name: "Build docker"
