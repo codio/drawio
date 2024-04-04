@@ -2752,7 +2752,6 @@ App.prototype.createBackground = function()
 	
 	App.prototype.setMode = function(mode, remember)
 	{
-		console.log('app setMode', mode);
 		editorUiSetMode.apply(this, arguments);
 		
 		// Note: UseLocalStorage affects the file dialogs
