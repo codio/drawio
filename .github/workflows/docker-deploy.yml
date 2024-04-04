@@ -10,7 +10,7 @@ jobs:
         uses: actions/checkout@v4
 
       - name: Configure AWS credentials
-        uses: aws-actions/configure-aws-credentials@v2
+        uses: aws-actions/configure-aws-credentials@v4
         with:
           aws-access-key-id: ${{ secrets.ECR_UPLOADER_KEY }}
           aws-secret-access-key: ${{ secrets.ECR_UPLOADER_SECRET }}
@@ -22,7 +22,7 @@ jobs:
 
       - name: Login to Amazon ECR
         id: login-ecr
-        uses: aws-actions/amazon-ecr-login@v1
+        uses: aws-actions/amazon-ecr-login@v2
 
       - name: app Docker build
         run: docker build -t tmp_app_img --file ./docker-codio/Dockerfile .
@@ -53,9 +53,27 @@ jobs:
         run: docker logout ${{ steps.login-ecr.outputs.registry }}
 
       - name: Slack
-        uses: codio/codio-slack-action@master
+        uses: 8398a7/action-slack@v3
         with:
-          slack_hook_url: ${{ secrets.SLACK_WEBHOOK_URL }}
-          message: "<https://github.com/${{ github.repository }}/actions/runs/${{github.run_id}}|${{ github.workflow }} build-push> for ${{ github.repository }} by ${{ github.actor }} has ${{ job.status }} on branch ${{ github.ref }}"
-          success: ${{ job.status }}
-        if: always()
+          status: custom
+          custom_payload: |
+            {
+              attachments: [{
+              text: "<https://github.com/${{ github.repository }}/actions/runs/${{github.run_id}}|${{ github.workflow }} build> for ${{ github.repository }} by ${{ github.actor }} has ${{ job.status }} on branch ${{ github.ref_name }}",
+              color: "good"
+              }]
+            }
+        if: success()
+
+      - name: Slack
+        uses: 8398a7/action-slack@v3
+        with:
+          status: custom
+          custom_payload: |
+            {
+              attachments: [{
+              text: "<https://github.com/${{ github.repository }}/actions/runs/${{github.run_id}}|${{ github.workflow }} build> for ${{ github.repository }} by ${{ github.actor }} has ${{ job.status }} on branch ${{ github.ref_name }}",
+              color: "#FF0000"
+              }]
+            }
+        if: failure()
