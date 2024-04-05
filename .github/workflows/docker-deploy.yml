@@ -49,7 +49,7 @@ jobs:
         run: |
           docker tag tmp_app_img $ECR_REGISTRY/$ECR_REPOSITORY:dev
           docker push $ECR_REGISTRY/$ECR_REPOSITORY:dev
-        if: ${{ steps.get-branch.outputs.branch == 'master' }}
+        if: ${{ steps.get-branch.outputs.branch == 'dev' }}
 
       - name: Logout of Amazon ECR
         if: always()
