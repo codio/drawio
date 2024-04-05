@@ -4889,8 +4889,9 @@
 					menu.addItem(err, null, null, parent, null, false);
 					menu.addSeparator(parent);
 				}
-
-				editorUi.menus.addMenuItems(menu, ['share'], parent);
+				if (editorUi.mode != App.MODE_CODIO) {
+					editorUi.menus.addMenuItems(menu, ['share'], parent);
+				}
 			}
 
 			this.addMenuItem(menu, 'publishLink', parent, null,
@@ -4992,7 +4993,7 @@
 					'layers', 'tags', 'chatWindowTitle', '-'], parent);	
 				editorUi.menus.addMenuItems(menu, ['pageSetup'], parent);
 			}
-			else if (Editor.currentTheme != 'min')
+			else if (Editor.currentTheme != 'min' && editorUi.mode != App.MODE_CODIO)
 			{
 				this.addMenuItems(menu, ['-'], parent);
 				this.addSubmenu('newLibrary', menu, parent);
@@ -5088,7 +5089,9 @@
 				}
 				else
 				{
-					editorUi.menus.addMenuItems(menu, ['makeCopy'], parent);
+					if (editorUi.mode != App.MODE_CODIO) {
+						editorUi.menus.addMenuItems(menu, ['makeCopy'], parent);
+					}
 				}
 			}
 			
@@ -5173,7 +5176,7 @@
 
 				if (!mxClient.IS_CHROMEAPP && !EditorUi.isElectronApp &&
 					file != null && (file.constructor != LocalFile ||
-					file.fileHandle != null))
+					file.fileHandle != null) && editorUi.mode != App.MODE_CODIO)
 				{
 					editorUi.menus.addMenuItems(menu, ['synchronize'], parent);
 				}
@@ -5213,7 +5216,9 @@
 				}
 				else
 				{
-					editorUi.menus.addMenuItems(menu, ['makeCopy'], parent);
+					if (editorUi.mode != App.MODE_CODIO) {
+						editorUi.menus.addMenuItems(menu, ['makeCopy'], parent);
+					}
 
 					if (file != null)
 					{
@@ -5274,11 +5279,13 @@
 					
 					this.addMenuItems(menu, ['save', '-', 'share'], parent);
 					
-					var item = this.addMenuItem(menu, 'synchronize', parent);
-					
-					if (!editorUi.isOffline() || mxClient.IS_CHROMEAPP || EditorUi.isElectronApp)
-					{
-						this.addLinkToItem(item, 'https://www.drawio.com/doc/faq/synchronize');
+					if (editorUi.mode != App.MODE_CODIO) {
+						var item = this.addMenuItem(menu, 'synchronize', parent);
+						
+						if (!editorUi.isOffline() || mxClient.IS_CHROMEAPP || EditorUi.isElectronApp)
+						{
+							this.addLinkToItem(item, 'https://www.drawio.com/doc/faq/synchronize');
+						}
 					}
 					
 					menu.addSeparator(parent);
@@ -5304,7 +5311,7 @@
 				{
 					if (!mxClient.IS_CHROMEAPP && !EditorUi.isElectronApp &&
 						file != null && (file.constructor != LocalFile ||
-						file.fileHandle != null))
+						file.fileHandle != null) && editorUi.mode != App.MODE_CODIO)
 					{	
 						menu.addSeparator(parent);
 						var item = this.addMenuItem(menu, 'synchronize', parent);
@@ -5319,7 +5326,7 @@
 					
 					if (!mxClient.IS_CHROMEAPP && !EditorUi.isElectronApp &&
 						editorUi.getServiceName() == 'draw.io' &&
-						!editorUi.isOfflineApp() && file != null)
+						!editorUi.isOfflineApp() && file != null && editorUi.mode != App.MODE_CODIO)
 					{
 						this.addMenuItems(menu, ['share', '-'], parent);
 					}
@@ -5338,7 +5345,9 @@
 					}
 					else
 					{
-						this.addMenuItems(menu, ['makeCopy'], parent);
+						if (editorUi.mode != App.MODE_CODIO) {
+							this.addMenuItems(menu, ['makeCopy'], parent);
+						}
 
 						if (file != null)
 						{
@@ -5361,9 +5370,11 @@
 				menu.addSeparator(parent);
 				this.addSubmenu('embed', menu, parent);
 				this.addSubmenu('publish', menu, parent);
-				menu.addSeparator(parent);
-				this.addSubmenu('newLibrary', menu, parent);
-				this.addSubmenu('openLibraryFrom', menu, parent);
+				if (editorUi.mode != App.MODE_CODIO) {
+					menu.addSeparator(parent);
+					this.addSubmenu('newLibrary', menu, parent);
+					this.addSubmenu('openLibraryFrom', menu, parent);
+				}
 				
 				if (editorUi.isRevisionHistorySupported())
 				{

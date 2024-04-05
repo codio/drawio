@@ -6078,7 +6078,7 @@ App.prototype.updateButtonContainer = function()
 			urlParams['embed'] != '1' &&
 			!this.isStandaloneApp())
 		{
-			if (file != null)
+			if (file != null && this.mode != App.MODE_CODIO)
 			{
 				if (this.shareButton == null && Editor.currentTheme != 'atlas')
 				{
