@@ -17,7 +17,7 @@ RUN cd /tmp/drawio/etc/build/ && \
 FROM tomcat:9-jre11
 
 # set default port
-RUN sed -i 's/port="8080"/port="80"/' ${CATALINA_HOME}/conf/server.xml
+# RUN sed -i 's/port="8080"/port="80"/' ${CATALINA_HOME}/conf/server.xml
 
 ENV RUN_USER            tomcat
 ENV RUN_GROUP           tomcat
@@ -59,6 +59,7 @@ USER ${RUN_USER}
 WORKDIR $CATALINA_HOME
 
 # EXPOSE 8080 8443
+EXPOSE 8080
 
 ENTRYPOINT ["/docker-entrypoint.sh"]
 CMD ["catalina.sh", "run"]
