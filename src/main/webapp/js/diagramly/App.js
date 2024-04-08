@@ -5167,7 +5167,8 @@ App.prototype.fileCreated = function(file, libs, replace, done, clibs, success)
 			
 			if (replace == null && currentFile != null)
 			{
-				replace = !currentFile.isModified() && currentFile.getMode() == null;
+				// codio. hack. why should not reload for non mode files?
+				replace = !currentFile.isModified() && (currentFile.getMode() == null || currentFile.getMode() == App.MODE_CODIO);
 			}
 			
 			var fn3 = mxUtils.bind(this, function()
