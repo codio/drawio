@@ -4659,6 +4659,10 @@ EditorUi.prototype.updateActionStates = function()
 		ss.vertices.length > 1);
     this.menus.get('align').setEnabled(ss.unlocked &&
 		ss.cells.length > 0);
+	if (this.mode == App.MODE_CODIO)
+	{
+		this.actions.get('saveAs').setEnabled(false);
+	}
 
     this.updatePasteActionStates();
 };

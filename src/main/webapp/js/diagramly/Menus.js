@@ -4921,7 +4921,11 @@
 			{
 				editorUi.menus.addMenuItems(menu, ['new', 'open', '-',
 					'synchronize', 'properties', '-',
-					'save', 'saveAs', '-'], parent);
+					'save'], parent);
+				if (editorUi.mode != App.MODE_CODIO) {
+					editorUi.menus.addMenuItems(menu, ['saveAs'], parent);
+				}
+				editorUi.menus.addMenuItems(menu, ['-'], parent);
 			}
 			else if (editorUi.mode == App.MODE_ATLAS)
 			{
@@ -5078,7 +5082,11 @@
 			}
 			else
 			{
-				editorUi.menus.addMenuItems(menu, ['save', 'saveAs', '-', 'rename'], parent);
+				editorUi.menus.addMenuItems(menu, ['save'], parent);
+				if (editorUi.mode != App.MODE_CODIO) {
+					editorUi.menus.addMenuItems(menu, ['saveAs'], parent);
+				}
+				editorUi.menus.addMenuItems(menu, ['-', 'rename'], parent);
 				
 				if (editorUi.isOfflineApp())
 				{
@@ -5169,7 +5177,7 @@
 				menu.addSeparator(parent);
 				editorUi.menus.addMenuItems(menu, ['-', 'save'], parent);
 
-				if (file == null || file.constructor != DriveFile)
+				if (file == null || file.constructor != DriveFile || file.constructor != CodioFile)
 				{
 					editorUi.menus.addMenuItems(menu, ['saveAs'], parent);
 				}
@@ -5322,7 +5330,11 @@
 						}
 					}
 					
-					this.addMenuItems(menu, ['-', 'save', 'saveAs', '-'], parent);
+					this.addMenuItems(menu, ['-', 'save'], parent);
+					if (editorUi.mode != App.MODE_CODIO) {
+						this.addMenuItems(menu, ['saveAs'], parent);
+					}
+					this.addMenuItems(menu, ['-'], parent);
 					
 					if (!mxClient.IS_CHROMEAPP && !EditorUi.isElectronApp &&
 						editorUi.getServiceName() == 'draw.io' &&
