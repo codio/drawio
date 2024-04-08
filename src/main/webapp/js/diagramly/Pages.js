@@ -1960,7 +1960,7 @@ EditorUi.prototype.createPageMenu = function(page, label)
 {
 	return mxUtils.bind(this, function(menu, parent)
 	{
-		if (urlParams['embed'] != 1)
+		if (urlParams['embed'] != 1 && this.mode != App.MODE_CODIO)
 		{
 			var url = this.getLinkForPage(page);
 
