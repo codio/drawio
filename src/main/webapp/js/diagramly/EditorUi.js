@@ -378,7 +378,7 @@
 	 * Specifies if PDF export should be done via print dialog. Default is
 	 * false which uses the PhantomJS backend to create the PDF.
 	 */
-	EditorUi.prototype.printPdfExport = false;
+	EditorUi.prototype.printPdfExport = true;
 	
 	/**
 	 * Specifies if PDF export with pages is enabled.
