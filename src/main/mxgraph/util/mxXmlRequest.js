@@ -417,6 +417,7 @@ mxXmlRequest.prototype.simulate = function(doc, target)
 
 	if (doc == document)
 	{
+		console.log('mxXmlRequest.js onbeforeunload = null');
 		old = window.onbeforeunload;		
 		window.onbeforeunload = null;
 	}
@@ -470,6 +471,7 @@ mxXmlRequest.prototype.simulate = function(doc, target)
 
 	if (old != null)
 	{		
+		console.log('mxXmlRequest.js onbeforeunload = old', old);
 		window.onbeforeunload = old;
 	}
 };

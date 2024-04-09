@@ -5,6 +5,7 @@
 CodioClient = function (editorUi)
 {
     DrawioClient.call(this, editorUi, 'codioauth');
+    this.subscribeCodio();
 };
 
 mxUtils.extend(CodioClient, DrawioClient);
@@ -20,7 +21,6 @@ CodioClient.prototype.saveFile = function(file, success, error)
 {
     // save in current file
     var filename = window.codio.getFileName();
-    console.log('save file filename', filename);
     try
     {
         var savedData = file.getData();
@@ -35,12 +35,10 @@ CodioClient.prototype.saveFile = function(file, success, error)
             window.codio.saveFile(filename, data)
                 .then(function(resp)
                 {
-                    console.log('save file success', resp);
                     saveSuccess(resp);
                 })
                 .catch(function(e)
                 {
-                    console.log('save file error', e);
                     error(e);
                 });
         });
@@ -80,7 +78,6 @@ CodioClient.prototype.pickFile = function(fn, returnObject)
 CodioClient.prototype.getFile = function(id, success, error)
 {
     var filename = window.codio.getFileName();
-    console.trace('codioclient getFIle', success, error, 'filename', filename);
 
     window.codio.getFile(filename)
     .then(mxUtils.bind(this, function(item)
@@ -103,13 +100,11 @@ CodioClient.prototype.getFile = function(id, success, error)
 
 CodioClient.prototype.insertLibrary = function(filename, data, success, error, folderId)
 {
-    console.log('codio client insertLibrary filename, data, success, error, folderId', filename, data, success, error, folderId);
 	this.insertFile(filename, data, success, error, true, folderId, false);
 };
 
 CodioClient.prototype.insertFile = function(filename, data, success, error)
 {
-    console.log('codio client insertFile filename, data, success, error', filename, data, success, error);
     var meta = {'name': filename, isNew: true};
     success(new CodioFile(this.ui, data, meta));
 };
@@ -117,4 +112,27 @@ CodioClient.prototype.insertFile = function(filename, data, success, error)
 CodioClient.prototype.getFileName = function()
 {
     return window.codio.getFileName().replace('.drawio', '');
+};
+
+CodioClient.prototype.subscribeCodio = function()
+{
+    window.codio.loaded().then(mxUtils.bind(this, function()
+    {
+        window.codio.subscribeProjectUpdate(mxUtils.bind(this, function(data)
+        {
+            var currentFile = this.ui.getCurrentFile();
+            var fileName = currentFile.getTitle();
+
+            if (data.fileMoved && fileName == data.from)
+            {
+                currentFile.setTitle(data.to);
+                currentFile.descriptorChanged();
+            }
+        }));
+    }));
+};
+
+CodioClient.prototype.unsubscribe = function()
+{
+    window.codio.unsubscribeProjectUpdate();
 };

@@ -2811,7 +2811,6 @@ var NewDialog = function(editorUi, compact, showName, callback, createOnly, canc
 	var ww = window.innerWidth || document.documentElement.clientWidth || document.body.clientWidth;
 	var smallScreen = ww < 500;
 	showName = (showName != null) ? showName : true;
-	console.trace('new dialog showName', showName);
 	createOnly = (createOnly != null) ? createOnly : false;
 	leftHighlight = (leftHighlight != null) ? leftHighlight : (Editor.isDarkMode() ? Editor.darkColor : '#ebf2f9');
 	rightHighlight = (rightHighlight != null) ? rightHighlight : (Editor.isDarkMode() ? '#fff' : '#e6eff8');

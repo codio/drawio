@@ -3777,6 +3777,13 @@ EditorUi.prototype.addBeforeUnloadListener = function()
 			return this.onBeforeUnload();
 		}
 	});
+	window.addEventListener('unload', mxUtils.bind(this, function ()
+	{
+		if (!this.editor.isChromelessView())
+		{
+			return this.onBeforeUnload();
+		}
+	}));
 };
 
 /**

@@ -1520,7 +1520,6 @@ App.prototype.initializeViewerMode = function()
  */
 App.prototype.init = function()
 {
-	console.trace('app init');
 	if (App.blockedAncestorFrames())
 	{
 		return;
@@ -1673,13 +1672,10 @@ App.prototype.init = function()
 		 */
 		var initCodioClient = mxUtils.bind(this, function()
 		{
-			// todo: codio. should load without check
-			console.log('typeof window.codio', typeof window.codio !== 'undefined');
 			if (typeof window.codio !== 'undefined')
 			{
 				try
 				{
-					console.log('new codio client');
 					this.codio = new CodioClient(this);
 				}
 				catch (e)
@@ -3792,7 +3788,6 @@ App.prototype.showSplash = function(force)
 	
 	var showSecondDialog = mxUtils.bind(this, function()
 	{
-		console.trace('showSecondDialog', this.mode);
 		var dlg = new SplashDialog(this);
 		
 		this.showDialog(dlg.container, 340, (mxClient.IS_CHROMEAPP ||
@@ -3820,8 +3815,6 @@ App.prototype.showSplash = function(force)
 	}
 	else if (!mxClient.IS_CHROMEAPP && (this.mode == null || force))
 	{
-		// todo: codio. show dialog
-		console.log('show storage dialog', this.mode);
 		var rowLimit = (serviceCount == 4) ? 2 : 3;
 		
 		var dlg = new StorageDialog(this, mxUtils.bind(this, function()
@@ -4166,7 +4159,6 @@ App.prototype.pickFile = function(mode)
 							filename = filename.substring(0, filename.length - 4) + '.drawio';
 						}
 
-						console.log('open local file mode', mode);
 						this.fileLoaded((mode == App.MODE_BROWSER) ?
 							new StorageFile(this, xml, filename) :
 							new LocalFile(this, xml, filename));
@@ -5271,7 +5263,6 @@ App.prototype.fileCreated = function(file, libs, replace, done, clibs, success)
  */
 App.prototype.loadFile = function(id, sameWindow, file, success, force)
 {
-	console.trace('app load file id, sameWindow, file, success, force', id, sameWindow, file, success, force);
 	if (urlParams['openInSameWin'] == '1' || navigator.standalone)
 	{
 		sameWindow = true;
@@ -5281,7 +5272,6 @@ App.prototype.loadFile = function(id, sameWindow, file, success, force)
 	
 	var fn2 = mxUtils.bind(this, function()
 	{
-		console.log('fn2 id', id);
 		if (id == null || id.length == 0)
 		{
 			this.editor.setStatus('');
@@ -5539,12 +5529,10 @@ App.prototype.loadFile = function(id, sameWindow, file, success, force)
 			else
 			{
 				var mode = this.getModeForChar(id.charAt(0));
-				console.trace('load file by mode char', id.charAt(0), 'mode', mode);
 
 				var doLoadFile = mxUtils.bind(this, function()
 				{
 					var peer = this.getServiceForName(mode);
-					console.log('doLoadFile mode', mode, 'peer', peer);
 
 					if (peer == null)
 					{

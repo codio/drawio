@@ -51,9 +51,9 @@ CodioFile.prototype.getTitle = function()
     return this.meta.name;
 };
 
-CodioFile.prototype.isRenamable = function()
+CodioFile.prototype.setTitle = function(newName)
 {
-    return true;
+    this.meta.name = newName;
 };
 
 CodioFile.prototype.getSize = function()
@@ -89,7 +89,6 @@ CodioFile.prototype.setDescriptorEtag = function(desc, etag)
 
 CodioFile.prototype.save = function(revision, success, error, unloading, overwrite)
 {
-    console.trace('codio file save revision, success, error', revision, success, error);
     DrawioFile.prototype.save.apply(this, [revision, mxUtils.bind(this, function()
     {
         this.saveFile(null, revision, success, error, unloading, overwrite);
@@ -103,7 +102,6 @@ CodioFile.prototype.saveAs = function(title, success, error)
 
 CodioFile.prototype.doSave = function(title, revision, success, error, unloading, overwrite)
 {
-    console.trace('codio file doSave title, revision, success, error, unloading, overwrite', title, revision, success, error, unloading, overwrite);
     var prev = this.meta.name;
     this.meta.name = title;
 
@@ -116,7 +114,6 @@ CodioFile.prototype.doSave = function(title, revision, success, error, unloading
 
 CodioFile.prototype.saveFile = function(title, revision, success, error, unloading, overwrite)
 {
-    console.log('codio file saveFile title, revision, success, error, unloading, overwrite', title, revision, success, error, unloading, overwrite);
     if (!this.isEditable())
     {
         if (success != null) {
@@ -127,7 +124,6 @@ CodioFile.prototype.saveFile = function(title, revision, success, error, unloadi
     {
         var doSave = mxUtils.bind(this, function()
         {
-            console.log('codio file do save');
             // Sets shadow modified state during save
             this.savingFileTime = new Date();
             this.setShadowModified(false);
@@ -175,4 +171,10 @@ CodioFile.prototype.getFile = function(id, success, error)
 CodioFile.prototype.isRenamable = function()
 {
 	return false;
+};
+
+CodioFile.prototype.close = function()
+{
+    this.ui.codio.unsubscribe();
+    DrawioFile.prototype.close.apply(this, arguments);
 };
