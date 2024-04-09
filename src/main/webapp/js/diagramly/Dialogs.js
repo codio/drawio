@@ -197,7 +197,6 @@ var StorageDialog = function(editorUi, fn, rowLimit)
 	var hd = document.createElement('p');
 	hd.style.cssText = 'font-size:22px;padding:4px 0 16px 0;margin:0;color:gray;';
 	mxUtils.write(hd, mxResources.get('saveDiagramsTo') + ':');
-	// todo: codio add codio type, or autoselect it via codio
 	div.appendChild(hd);
 	
 	var addButtons = function()
@@ -237,11 +236,6 @@ var StorageDialog = function(editorUi, fn, rowLimit)
 		if (editorUi.gitLab != null)
 		{
 			addLogo(IMAGE_PATH + '/gitlab-logo.svg', mxResources.get('gitlab'), App.MODE_GITLAB, 'gitLab');
-		}
-
-		if (editorUi.codio != null)
-		{
-			addLogo(IMAGE_PATH + '/gitlab-logo.svg', mxResources.get('codio'), App.MODE_CODIO, 'codio');
 		}
 	};
 	
@@ -360,11 +354,6 @@ var SplashDialog = function(editorUi)
 	{
 		logo.src = IMAGE_PATH + '/trello-logo.svg';
 		service = mxResources.get('trello');
-	} else if (editorUi.mode == App.MODE_CODIO)
-	{
-		// todo: codio logo
-		logo.src = IMAGE_PATH + '/github-logo.svg';
-		service = mxResources.get('codio');
 	}
 	else
 	{
@@ -651,7 +640,6 @@ var SplashDialog = function(editorUi)
 			});
 		}
 	}
-	// todo: codio. no logout?
 
 	div.appendChild(buttons);
 	this.container = div;
@@ -1122,7 +1110,6 @@ var GoogleSitesDialog = function(editorUi, publicUrl)
 	var s = editorUi.getBasenames().join(';');
 	var file = editorUi.getCurrentFile();
 
-	// todo: codio. what is update?
 	function update()
 	{
 		var title = (file != null && file.getTitle() != null) ? file.getTitle() : this.defaultFilename;
@@ -2866,11 +2853,6 @@ var NewDialog = function(editorUi, compact, showName, callback, createOnly, canc
 	{
 		logo.src = IMAGE_PATH + '/osa_database.png';
 	}
-	else if (editorUi.mode == App.MODE_CODIO)
-	{
-		// todo: codio. create file from template
-		logo.src = IMAGE_PATH + '/github-logo.svg';
-	}
 	else
 	{
 		logo.src = IMAGE_PATH + '/osa_drive-harddisk.png';
@@ -2916,7 +2898,6 @@ var NewDialog = function(editorUi, compact, showName, callback, createOnly, canc
 	}
 	else if (editorUi.mode == App.MODE_CODIO && editorUi.codio != null)
 	{
-		// todo: codio. file from template?
 		ext = editorUi.codio.extension;
 		filename = editorUi.codio.getFileName();
 		withoutType = true;
@@ -3016,7 +2997,6 @@ var NewDialog = function(editorUi, compact, showName, callback, createOnly, canc
 		zIndex: 2e9 // The z-index (defaults to 2000000000)
 	});
 	
-	// todo: codio. here is create.
 	var createButton = mxUtils.button(createButtonLabel || mxResources.get('create'), function()
 	{
 		createButton.setAttribute('disabled', 'disabled');
@@ -5413,7 +5393,6 @@ var CreateDialog = function(editorUi, title, createFn, cancelFn, dlgTitle, btnLa
 			
 			addLogo(IMAGE_PATH + '/trello-logo.svg', mxResources.get('trello'), App.MODE_TRELLO, 'trello');
 		}
-		// todo: codio CodioClient
 	}
 	
 	if (!Editor.useLocalStorage || urlParams['storage'] == 'device' ||

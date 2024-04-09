@@ -15,5 +15,4 @@ Draw.loadPlugin(function(ui)
 	
 	isLocalStorage = false;
 
-	// todo: codio CodioFile
 });

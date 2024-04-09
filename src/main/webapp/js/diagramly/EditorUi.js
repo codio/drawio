@@ -277,8 +277,7 @@
 	{
 		try
 		{
-			if (window.console != null)
-			// if (window.console != null && urlParams['test'] == '1')
+			if (window.console != null && urlParams['test'] == '1')
 			{
 				var args = [new Date().toISOString()];
 				
@@ -17777,7 +17776,6 @@
 			serviceCount++
 		}
 
-		// todo: codio. should be typeof window.codio ???
 		if (this.codio != null || typeof window.CodioClient === 'function')
 		{
 			serviceCount++

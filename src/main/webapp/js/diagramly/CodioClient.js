@@ -63,14 +63,13 @@ CodioClient.prototype.pickLibrary = function(fn)
 
 CodioClient.prototype.pickFolder = function(fn)
 {
-    // todo: codio what is this?
+    // Do nothing
 };
 
 CodioClient.prototype.pickFile = function(fn, returnObject)
 {
     fn = (fn != null) ? fn : mxUils.bind(this, function(id)
     {
-        // todo: codio what to do ?
         this.ui.loadFile('C' + encodeURIComponent(id))
     });
 };

@@ -576,9 +576,7 @@ App.getStoredMode = function()
 					}
 				}
 
-				// todo: codio CodioClient
-				// copypaste:
-				// Loads Trello for all browsers but < IE10 if not disabled or if enabled and in embed mode
+				// Loads Codio
 				if (typeof window.CodioClient === 'function')
 				{
 					// Immediately loads client
@@ -1063,8 +1061,6 @@ App.main = function(callback, createUi)
 							{
 								window.TrelloClient = null;
 							}
-
-							// todo: codio CodioClient ??
 						}
 						
 						if (callback != null)
@@ -1657,11 +1653,6 @@ App.prototype.init = function()
 		initTrelloClient();
 	}
 
-	/*
-		todo: codio CodioClient
-		new CodioClient ?
-		or add to window ?
-	*/
 	/**
 	 * Lazy-loading for Codio
 	 */
@@ -4447,16 +4438,6 @@ App.prototype.saveLibrary = function(name, images, file, mode, noSpin, noReload,
 						this.libraryLoaded(newFile, images);
 					}), error, folderId);
 				}
-				else if (mode == App.MODE_CODIO && this.codio != null && this.spinner.spin(document.body, mxResources.get('inserting')))
-				{
-					// todo: codio. what is insert library?
-					this.codio.insertLibrary(name, xml, mxUtils.bind(this, function(newFile)
-					{
-						this.spinner.stop();
-						this.hideDialog(true);
-						this.libraryLoaded(newFile, images);
-					}), error, folderId);
-				}
 				else if (mode == App.MODE_BROWSER)
 				{
 					var fn = mxUtils.bind(this, function()
@@ -4909,7 +4890,6 @@ App.prototype.isModeEnabled = function(mode)
 			mxClient.IS_SVG && (document.documentMode == null ||
 				document.documentMode > 9);
 	}
-	// todo: codio CodioClient
 	else if (mode == App.MODE_CODIO)
 	{
 		return this.codio != null;
@@ -6695,7 +6675,6 @@ App.prototype.pickFolder = function(mode, fn, enabled, direct, force, returnPick
 			fn(cardId);
 		}));
 	}
-	// todo: codio
 	else
 	{
 		EditorUi.prototype.pickFolder.apply(this, arguments);
@@ -6798,7 +6777,6 @@ App.prototype.exportFile = function(data, filename, mimeType, base64Encoded, mod
 			}), false, folderId);
 		}
 	}
-	// todo: codio
 	else if (mode == App.MODE_BROWSER)
 	{
 		if (window.StorageFile != null && !base64Encoded &&
@@ -7220,12 +7198,6 @@ App.prototype.updateHeader = function()
 				else if (mode == App.MODE_TRELLO)
 				{
 					this.appIcon.style.backgroundImage = 'url(' + IMAGE_PATH + '/trello-logo-white-orange.svg)';
-					this.appIcon.style.backgroundSize = '70% 70%';
-				}
-				else if (mode == App.MODE_CODIO)
-				{
-					// todo: codio
-					this.appIcon.style.backgroundImage = 'url(' + IMAGE_PATH + '/codio-log-white.svg)';
 					this.appIcon.style.backgroundSize = '70% 70%';
 				}
 			}
@@ -8171,7 +8143,6 @@ App.prototype.toggleUserPanel = function()
 				}
 			}), mxResources.get('trello'));
 		}
-		// todo: codio.
 
 		if (uiTheme == 'min')
 		{

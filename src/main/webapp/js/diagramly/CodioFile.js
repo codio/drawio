@@ -27,7 +27,6 @@ CodioFile.prototype.getParentId = function()
 
 CodioFile.prototype.getIdOf = function(itemObj, parent)
 {
-    // todo: codio. do need this?
     return 'parentId';
 };
 
@@ -63,7 +62,6 @@ CodioFile.prototype.getSize = function()
 
 CodioFile.prototype.isConflict = function(req)
 {
-    // todo: codio. check if window codio not working?
     return req != null;
 };
 
