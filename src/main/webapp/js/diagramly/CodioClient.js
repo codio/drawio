@@ -129,6 +129,22 @@ CodioClient.prototype.subscribeCodio = function()
                 currentFile.descriptorChanged();
             }
         }));
+
+        window.codio.subscribe("hasChanges", () => {
+            var currentFile = this.ui.getCurrentFile();
+            return currentFile.isModified();
+        })
+
+        window.codio.subscribe("callSave", () => {
+            return new Promise((resolve, reject) => {
+                var currentFile = this.ui.getCurrentFile();
+                currentFile.save(null, () => {
+                    resolve();
+                }, (e) => {
+                    reject(e);
+                });
+            })
+        })
     }));
 };
 
