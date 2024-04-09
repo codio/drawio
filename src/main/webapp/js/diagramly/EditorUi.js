@@ -2339,7 +2339,7 @@
 	 */
 	EditorUi.prototype.setMode = function(mode, remember)
 	{
-				this.mode = mode;
+		this.mode = mode;
 	};
 
 	/**

@@ -451,14 +451,14 @@ App.getStoredMode = function()
 				urlParams['mode'] = 'dropbox';
 			}
 			
-						App.mode = urlParams['mode'];
+			App.mode = urlParams['mode'];
 		}
 			
 		if (App.mode == null)
 		{
 			// Stored mode overrides preferred mode
 			App.mode = App.getStoredMode();
-					}
+		}
 		
 		/**
 		 * Lazy loading backends.

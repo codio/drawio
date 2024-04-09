@@ -364,7 +364,6 @@ var mxResources =
 	 */
 	get: function(key, params, defaultValue)
 	{
-		console.log('msResources get key, params, defaultValue', key, params, defaultValue);
 		var value = mxResources.resources[key];
 		
 		// Applies the default value if no resource was found

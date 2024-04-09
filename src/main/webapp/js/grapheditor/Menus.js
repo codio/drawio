@@ -2000,7 +2000,7 @@ Menu.prototype.isEnabled = function()
  */
 Menu.prototype.setEnabled = function(value)
 {
-		if (this.enabled != value)
+	if (this.enabled != value)
 	{
 		this.enabled = value;
 		this.fireEvent(new mxEventObject('stateChanged'));
