@@ -307,6 +307,12 @@ public class ProxyServlet extends HttpServlet
 		{
 			dom = "";
 		}
+		else if (referer != null && referer.toLowerCase()
+				.matches("^https?://([a-z0-9,-]+[.])*codio[.]test/.*"))
+		{
+			dom = referer.toLowerCase().substring(0,
+					referer.indexOf(".codio.test/") + 11);
+		}
 
 		return dom;
 	}

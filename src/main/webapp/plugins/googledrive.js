@@ -14,4 +14,5 @@ Draw.loadPlugin(function(ui)
 	window.TrelloClient = null;
 	
 	isLocalStorage = false;
+
 });

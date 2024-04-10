@@ -377,7 +377,7 @@
 	 * Specifies if PDF export should be done via print dialog. Default is
 	 * false which uses the PhantomJS backend to create the PDF.
 	 */
-	EditorUi.prototype.printPdfExport = false;
+	EditorUi.prototype.printPdfExport = true;
 	
 	/**
 	 * Specifies if PDF export with pages is enabled.
@@ -17775,6 +17775,11 @@
 		{
 			serviceCount++
 		}
+
+		if (this.codio != null || typeof window.CodioClient === 'function')
+		{
+			serviceCount++
+		}
 		
 		if (this.gitHub != null)
 		{
@@ -17847,8 +17852,12 @@
 		// Disables menus
 		this.menus.get('edit').setEnabled(active);
 		this.menus.get('view').setEnabled(active);
-		this.menus.get('importFrom').setEnabled(editable);
+		// this.menus.get('importFrom').setEnabled(editable);
 		this.menus.get('arrange').setEnabled(editable);
+		
+		this.menus.get('importFrom').setEnabled(false);
+		this.menus.get('openRecent').setEnabled(false);
+		this.menus.get('openFrom').setEnabled(false);
 		
 		// Disables connection drop downs in toolbar
 		if (this.toolbar != null)

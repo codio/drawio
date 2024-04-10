@@ -421,6 +421,8 @@
 				<file name="GitLabClient.js" />
 				<file name="DrawioComment.js" />
 				<file name="DriveComment.js" />
+				<file name="CodioClient.js" />
+				<file name="CodioFile.js" />
 			</sources>
 			
 			<sources dir="${war.dir}/js/onedrive">
@@ -528,6 +530,9 @@
 	<target name="war" depends="app, javac" description="Create the stand-alone war file">
 		<zip destfile="${build.dir}/${war.name}" basedir="${war.dir}" >
 		</zip>
+	</target>
+
+	<target name="warclean" depends="clean, war" description="Clean and Create the stand-alone war file">
 	</target>
 
 </project>

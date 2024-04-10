@@ -50,7 +50,11 @@ Menus.prototype.init = function()
 {
 	var ui = this.editorUi;
 	var graph = ui.editor.graph;
-	var isGraphEnabled = mxUtils.bind(graph, graph.isEnabled);
+	// var isGraphEnabled = mxUtils.bind(graph, graph.isEnabled);
+	var isGraphEnabled = function()
+	{
+		return Action.prototype.isEnabled.apply(this, arguments) && graph.isEnabled();
+	};
 
 	this.customFonts = [];
 	this.customFontSizes = [];

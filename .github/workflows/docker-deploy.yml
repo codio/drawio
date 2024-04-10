@@ -1,0 +1,82 @@
+name: Deploy Docker
+on: [push]
+
+env:
+  SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
+
+jobs:
+  build-docker:
+    name: "Build docker"
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          aws-access-key-id: ${{ secrets.ECR_UPLOADER_KEY }}
+          aws-secret-access-key: ${{ secrets.ECR_UPLOADER_SECRET }}
+          aws-region: us-east-1
+
+      - name: Get Current Branch
+        id: get-branch
+        uses: codio/get-branch-name-github-action@v1
+
+      - name: Login to Amazon ECR
+        id: login-ecr
+        uses: aws-actions/amazon-ecr-login@v2
+
+      - name: app Docker build
+        run: docker build -t tmp_app_img --file ./docker-codio/Dockerfile .
+
+      - name: push app image to Amazon ECR
+        env:
+          ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
+          ECR_REPOSITORY: codio/drawio
+          IMAGE_TAG: ${{ github.sha }}
+          BRANCH: ${{ steps.get-branch.outputs.branch }}
+        run: |
+          docker tag tmp_app_img $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG
+          docker tag tmp_app_img $ECR_REGISTRY/$ECR_REPOSITORY:$BRANCH
+          docker push $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG
+          docker push $ECR_REGISTRY/$ECR_REPOSITORY:$BRANCH
+
+      - name: push app dev version
+        env:
+          ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
+          ECR_REPOSITORY: codio/drawio
+        run: |
+          docker tag tmp_app_img $ECR_REGISTRY/$ECR_REPOSITORY:dev
+          docker push $ECR_REGISTRY/$ECR_REPOSITORY:dev
+        if: ${{ steps.get-branch.outputs.branch == 'dev' }}
+
+      - name: Logout of Amazon ECR
+        if: always()
+        run: docker logout ${{ steps.login-ecr.outputs.registry }}
+
+      - name: Slack
+        uses: 8398a7/action-slack@v3
+        with:
+          status: custom
+          custom_payload: |
+            {
+              attachments: [{
+              text: "<https://github.com/${{ github.repository }}/actions/runs/${{github.run_id}}|${{ github.workflow }} build> for ${{ github.repository }} by ${{ github.actor }} has ${{ job.status }} on branch ${{ github.ref_name }}",
+              color: "good"
+              }]
+            }
+        if: success()
+
+      - name: Slack
+        uses: 8398a7/action-slack@v3
+        with:
+          status: custom
+          custom_payload: |
+            {
+              attachments: [{
+              text: "<https://github.com/${{ github.repository }}/actions/runs/${{github.run_id}}|${{ github.workflow }} build> for ${{ github.repository }} by ${{ github.actor }} has ${{ job.status }} on branch ${{ github.ref_name }}",
+              color: "#FF0000"
+              }]
+            }
+        if: failure()

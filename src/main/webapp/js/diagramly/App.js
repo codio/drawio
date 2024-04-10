@@ -250,6 +250,16 @@ App.MODE_EMBED = 'embed';
 App.MODE_ATLAS = 'atlas';
 
 /**
+ * Codio App Mode
+ */
+App.MODE_CODIO = 'codio';
+
+/**
+ * Codio URL
+ */
+App.CODIO_URL = 'https://codio.com/ext/iframe/base/static/codio-client.js';
+
+/**
  * Sets the delay for autosave in milliseconds. Default is 2000.
  */
 App.DROPBOX_APPKEY = window.DRAWIO_DROPBOX_ID;
@@ -317,6 +327,7 @@ App.startTime = new Date();
  * Defines plugin IDs for loading via p URL parameter. Update the table at
  * https://www.drawio.com/doc/faq/supported-url-parameters
  */
+// todo: codio.
 App.pluginRegistry = {'4xAKTrabTpTzahoLthkwPNUn': 'plugins/explore.js',
 	'ex': 'plugins/explore.js',
 	'ac': 'plugins/connect.js', 'acj': 'plugins/connectJira.js',
@@ -562,6 +573,21 @@ App.getStoredMode = function()
 					{
 						// Disables loading of client
 						window.TrelloClient = null;
+					}
+				}
+
+				// Loads Codio
+				if (typeof window.CodioClient === 'function')
+				{
+					// Immediately loads client
+					if (App.mode == App.MODE_CODIO || (window.location.hash != null &&
+						window.location.hash.substring(0, 2) == '#C'))
+					{
+						mxscript(App.CODIO_URL);
+					}
+					else if (urlParams['chrome'] == '0')
+					{
+						window.CodioClient = null;
 					}
 				}
 			}
@@ -1626,6 +1652,40 @@ App.prototype.init = function()
 
 		initTrelloClient();
 	}
+
+	/**
+	 * Lazy-loading for Codio
+	 */
+	if (urlParams['embed'] != '1' || urlParams['codio'] == '1')
+	{
+		/**
+		 * Creates Codio client if all required libraries are available.
+		 */
+		var initCodioClient = mxUtils.bind(this, function()
+		{
+			if (typeof window.codio !== 'undefined')
+			{
+				try
+				{
+					this.codio = new CodioClient(this);
+				}
+				catch (e)
+				{
+					if (window.console != null)
+					{
+						console.error(e);
+					}
+				}
+			}
+			else if (window.DrawCodioClientCallback == null)
+			{
+				window.DrawCodioClientCallback = initCodioClient;
+			}
+		});
+
+		initCodioClient();
+	}
+
 
 	/**
 	 * Creates drive client with all required libraries are available.
@@ -4089,7 +4149,7 @@ App.prototype.pickFile = function(mode)
 						{
 							filename = filename.substring(0, filename.length - 4) + '.drawio';
 						}
-		
+
 						this.fileLoaded((mode == App.MODE_BROWSER) ?
 							new StorageFile(this, xml, filename) :
 							new LocalFile(this, xml, filename));
@@ -4165,14 +4225,15 @@ App.prototype.pickLibrary = function(mode)
 	});
 	
 	if (mode == App.MODE_GOOGLE || mode == App.MODE_DROPBOX || mode == App.MODE_ONEDRIVE ||
-		mode == App.MODE_GITHUB || mode == App.MODE_GITLAB || mode == App.MODE_TRELLO)
+		mode == App.MODE_GITHUB || mode == App.MODE_GITLAB || mode == App.MODE_TRELLO || mode == App.MODE_CODIO)
 	{
 		var peer = (mode == App.MODE_GOOGLE) ? this.drive :
 			((mode == App.MODE_ONEDRIVE) ? this.oneDrive :
 			((mode == App.MODE_GITHUB) ? this.gitHub :
 			((mode == App.MODE_GITLAB) ? this.gitLab :
 			((mode == App.MODE_TRELLO) ? this.trello :
-			this.dropbox))));
+			((mode == App.MODE_CODIO) ? this.codio :
+			this.dropbox)))));
 		
 		if (peer != null)
 		{
@@ -4769,6 +4830,10 @@ App.prototype.getModeForChar = function(char)
 	{
 		return App.MODE_TRELLO;
 	}
+	else if (char == 'C')
+	{
+		return App.MODE_CODIO;
+	}
 	else
 	{
 		return null;
@@ -4824,6 +4889,10 @@ App.prototype.isModeEnabled = function(mode)
 		return typeof window.TrelloClient === 'function' && urlParams['tr'] == '1' &&
 			mxClient.IS_SVG && (document.documentMode == null ||
 				document.documentMode > 9);
+	}
+	else if (mode == App.MODE_CODIO)
+	{
+		return this.codio != null;
 	}
 	else
 	{
@@ -4960,6 +5029,10 @@ App.prototype.createFile = function(title, data, libs, mode, done, replace, fold
 			{
 				this.oneDrive.insertFile(title, data, fileCreated, error, false, folderId);
 			}
+			else if (mode == App.MODE_CODIO && this.codio != null)
+			{
+				this.codio.insertFile(title, data, fileCreated, error);
+			}
 			else if (mode == App.MODE_BROWSER)
 			{
 				StorageFile.insertFile(this, title, data, fileCreated, error);
@@ -5066,7 +5139,8 @@ App.prototype.fileCreated = function(file, libs, replace, done, clibs, success)
 			
 			if (replace == null && currentFile != null)
 			{
-				replace = !currentFile.isModified() && currentFile.getMode() == null;
+				// codio. hack. why should not reload for non mode files?
+				replace = !currentFile.isModified() && (currentFile.getMode() == null || currentFile.getMode() == App.MODE_CODIO);
 			}
 			
 			var fn3 = mxUtils.bind(this, function()
@@ -5607,6 +5681,10 @@ App.prototype.getLibraryStorageHint = function(file)
 	{
 		tip += ' (' + mxResources.get('device') + ')';
 	}
+	else if (file.constructor == CodioLibrary)
+	{
+		tip += ' (' + mxResources.get('codio') + ')';
+	}
 
 	return tip;
 };
@@ -5864,6 +5942,13 @@ App.prototype.loadLibraries = function(libs, done)
 									peer = this.oneDrive;
 								}
 							}
+							else if (service == 'C')
+							{
+								if (this.codio != null && this.codio.user != null)
+								{
+									peer = this.codio;
+								}
+							}
 							
 							if (peer != null)
 							{
@@ -5962,7 +6047,7 @@ App.prototype.updateButtonContainer = function()
 			urlParams['embed'] != '1' &&
 			!this.isStandaloneApp())
 		{
-			if (file != null)
+			if (file != null && this.mode != App.MODE_CODIO)
 			{
 				if (this.shareButton == null && Editor.currentTheme != 'atlas')
 				{
@@ -6492,6 +6577,10 @@ App.prototype.getServiceForName = function(name)
 	else if (name == App.MODE_TRELLO)
 	{
 		return this.trello;
+	}
+	else if (name == App.MODE_CODIO)
+	{
+		return this.codio;
 	}
 	else
 	{
@@ -8054,7 +8143,7 @@ App.prototype.toggleUserPanel = function()
 				}
 			}), mxResources.get('trello'));
 		}
-		
+
 		if (uiTheme == 'min')
 		{
 			var file = this.getCurrentFile();

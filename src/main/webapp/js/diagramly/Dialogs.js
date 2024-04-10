@@ -480,6 +480,10 @@ var SplashDialog = function(editorUi)
 	{
 		storage = mxResources.get('browser');
 	}
+	else if (editorUi.mode == App.MODE_CODIO)
+	{
+		storage = mxResources.get('codio');
+	}
 	
 	if (!mxClient.IS_CHROMEAPP && !EditorUi.isElectronApp)
 	{
@@ -2866,6 +2870,7 @@ var NewDialog = function(editorUi, compact, showName, callback, createOnly, canc
 	}
 	
 	var ext = '.drawio';
+	var filename = editorUi.defaultFilename;
 	
 	if (editorUi.mode == App.MODE_GOOGLE && editorUi.drive != null)
 	{
@@ -2891,11 +2896,21 @@ var NewDialog = function(editorUi, compact, showName, callback, createOnly, canc
 	{
 		ext = editorUi.trello.extension;
 	}
+	else if (editorUi.mode == App.MODE_CODIO && editorUi.codio != null)
+	{
+		ext = editorUi.codio.extension;
+		filename = editorUi.codio.getFileName();
+		withoutType = true;
+	}
 	
 	var nameInput = document.createElement('input');
-	nameInput.setAttribute('value', editorUi.defaultFilename + ext);
+	nameInput.setAttribute('value', filename + ext);
 	nameInput.style.marginLeft = '10px';
 	nameInput.style.width = (compact || smallScreen) ? '144px' : '244px';
+	if (editorUi.mode == App.MODE_CODIO && editorUi.codio != null)
+	{
+		nameInput.setAttribute('readonly', 'readonly');
+	}
 	
 	this.init = function()
 	{
@@ -4901,6 +4916,7 @@ var SaveDialog = function(editorUi, title, saveFn, disabledModes, data, mimeType
 		addStorageEntry(App.MODE_GITHUB, null, null, null, null, 'pick');
 		addStorageEntry(App.MODE_GITLAB, null, null, null, null, 'pick');
 		addStorageEntry(App.MODE_TRELLO);
+		addStorageEntry(App.MODE_CODIO);
 
 		var allowDevice = !Editor.useLocalStorage || urlParams['storage'] == 'device' ||
 			(editorUi.getCurrentFile() != null && urlParams['noDevice'] != '1');

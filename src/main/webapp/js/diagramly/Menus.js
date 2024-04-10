@@ -128,7 +128,11 @@
 		menusInit.apply(this, arguments);
 		var editorUi = this.editorUi;
 		var graph = editorUi.editor.graph;
-		var isGraphEnabled = mxUtils.bind(graph, graph.isEnabled);
+		// var isGraphEnabled = mxUtils.bind(graph, graph.isEnabled);
+		var isGraphEnabled = function()
+		{
+			return Action.prototype.isEnabled.apply(this, arguments) && graph.isEnabled();
+		};
 
 		if (!mxClient.IS_SVG && !editorUi.isOffline())
 		{
@@ -3028,40 +3032,40 @@
 				if (data.substring(0, 11) == 'data:image/')
 				{
 					editorUi.loadImage(data, mxUtils.bind(this, function(img)
-	    			{
-			    		var resizeImages = true;
-			    		
-			    		var doInsert = mxUtils.bind(this, function()
-			    		{
-		    				editorUi.resizeImage(img, data, mxUtils.bind(this, function(data2, w2, h2)
-	    	    			{
-	    		    			var s = (resizeImages) ? Math.min(1, Math.min(editorUi.maxImageSize / w2, editorUi.maxImageSize / h2)) : 1;
+					{
+						var resizeImages = true;
+						
+						var doInsert = mxUtils.bind(this, function()
+						{
+							editorUi.resizeImage(img, data, mxUtils.bind(this, function(data2, w2, h2)
+							{
+								var s = (resizeImages) ? Math.min(1, Math.min(editorUi.maxImageSize / w2, editorUi.maxImageSize / h2)) : 1;
 	
-    							editorUi.importFile(data, mime, x, y, Math.round(w2 * s), Math.round(h2 * s), filename, function(cells)
-    							{
-    								editorUi.spinner.stop();
-    								graph.setSelectionCells(cells);
-    								graph.scrollCellToVisible(graph.getSelectionCell());
-    							});
-	    	    			}), resizeImages);
-			    		});
-			    		
-			    		if (data.length > editorUi.resampleThreshold)
-			    		{
-			    			editorUi.confirmImageResize(function(doResize)
-	    					{
-	    						resizeImages = doResize;
-	    						doInsert();
-	    					});
-			    		}
-			    		else
-		    			{
-			    			doInsert();
-		    			}
-	    			}), mxUtils.bind(this, function()
-	    			{
-	    				editorUi.handleError({message: mxResources.get('cannotOpenFile')});
-	    			}));
+								editorUi.importFile(data, mime, x, y, Math.round(w2 * s), Math.round(h2 * s), filename, function(cells)
+								{
+									editorUi.spinner.stop();
+									graph.setSelectionCells(cells);
+									graph.scrollCellToVisible(graph.getSelectionCell());
+								});
+							}), resizeImages);
+						});
+						
+						if (data.length > editorUi.resampleThreshold)
+						{
+							editorUi.confirmImageResize(function(doResize)
+							{
+								resizeImages = doResize;
+								doInsert();
+							});
+						}
+						else
+						{
+							doInsert();
+						}
+					}), mxUtils.bind(this, function()
+					{
+						editorUi.handleError({message: mxResources.get('cannotOpenFile')});
+					}));
 				}
 				else
 				{
@@ -4103,6 +4107,14 @@
 					dlg.init();
 				}, parent);
 			}
+
+			if (editorUi.isModeReady(App.MODE_CODIO))
+			{
+				menu.addItem(mxResources.get('codio') + '...', null, function()
+				{
+					editorUi.pickFile(App.MODE_CODIO);
+				}, parent);
+			}
 		}));
 		
 		if (Editor.enableCustomLibraries)
@@ -4877,8 +4889,9 @@
 					menu.addItem(err, null, null, parent, null, false);
 					menu.addSeparator(parent);
 				}
-
-				editorUi.menus.addMenuItems(menu, ['share'], parent);
+				if (editorUi.mode != App.MODE_CODIO) {
+					editorUi.menus.addMenuItems(menu, ['share'], parent);
+				}
 			}
 
 			this.addMenuItem(menu, 'publishLink', parent, null,
@@ -4908,7 +4921,11 @@
 			{
 				editorUi.menus.addMenuItems(menu, ['new', 'open', '-',
 					'synchronize', 'properties', '-',
-					'save', 'saveAs', '-'], parent);
+					'save'], parent);
+				if (editorUi.mode != App.MODE_CODIO) {
+					editorUi.menus.addMenuItems(menu, ['saveAs'], parent);
+				}
+				editorUi.menus.addMenuItems(menu, ['-'], parent);
 			}
 			else if (editorUi.mode == App.MODE_ATLAS)
 			{
@@ -4980,7 +4997,7 @@
 					'layers', 'tags', 'chatWindowTitle', '-'], parent);	
 				editorUi.menus.addMenuItems(menu, ['pageSetup'], parent);
 			}
-			else if (Editor.currentTheme != 'min')
+			else if (Editor.currentTheme != 'min' && editorUi.mode != App.MODE_CODIO)
 			{
 				this.addMenuItems(menu, ['-'], parent);
 				this.addSubmenu('newLibrary', menu, parent);
@@ -5065,7 +5082,11 @@
 			}
 			else
 			{
-				editorUi.menus.addMenuItems(menu, ['save', 'saveAs', '-', 'rename'], parent);
+				editorUi.menus.addMenuItems(menu, ['save'], parent);
+				if (editorUi.mode != App.MODE_CODIO) {
+					editorUi.menus.addMenuItems(menu, ['saveAs'], parent);
+				}
+				editorUi.menus.addMenuItems(menu, ['-', 'rename'], parent);
 				
 				if (editorUi.isOfflineApp())
 				{
@@ -5076,7 +5097,9 @@
 				}
 				else
 				{
-					editorUi.menus.addMenuItems(menu, ['makeCopy'], parent);
+					if (editorUi.mode != App.MODE_CODIO) {
+						editorUi.menus.addMenuItems(menu, ['makeCopy'], parent);
+					}
 				}
 			}
 			
@@ -5154,14 +5177,14 @@
 				menu.addSeparator(parent);
 				editorUi.menus.addMenuItems(menu, ['-', 'save'], parent);
 
-				if (file == null || file.constructor != DriveFile)
+				if (file == null || file.constructor != DriveFile || file.constructor != CodioFile)
 				{
 					editorUi.menus.addMenuItems(menu, ['saveAs'], parent);
 				}
 
 				if (!mxClient.IS_CHROMEAPP && !EditorUi.isElectronApp &&
 					file != null && (file.constructor != LocalFile ||
-					file.fileHandle != null))
+					file.fileHandle != null) && editorUi.mode != App.MODE_CODIO)
 				{
 					editorUi.menus.addMenuItems(menu, ['synchronize'], parent);
 				}
@@ -5201,7 +5224,9 @@
 				}
 				else
 				{
-					editorUi.menus.addMenuItems(menu, ['makeCopy'], parent);
+					if (editorUi.mode != App.MODE_CODIO) {
+						editorUi.menus.addMenuItems(menu, ['makeCopy'], parent);
+					}
 
 					if (file != null)
 					{
@@ -5262,11 +5287,13 @@
 					
 					this.addMenuItems(menu, ['save', '-', 'share'], parent);
 					
-					var item = this.addMenuItem(menu, 'synchronize', parent);
-					
-					if (!editorUi.isOffline() || mxClient.IS_CHROMEAPP || EditorUi.isElectronApp)
-					{
-						this.addLinkToItem(item, 'https://www.drawio.com/doc/faq/synchronize');
+					if (editorUi.mode != App.MODE_CODIO) {
+						var item = this.addMenuItem(menu, 'synchronize', parent);
+						
+						if (!editorUi.isOffline() || mxClient.IS_CHROMEAPP || EditorUi.isElectronApp)
+						{
+							this.addLinkToItem(item, 'https://www.drawio.com/doc/faq/synchronize');
+						}
 					}
 					
 					menu.addSeparator(parent);
@@ -5292,7 +5319,7 @@
 				{
 					if (!mxClient.IS_CHROMEAPP && !EditorUi.isElectronApp &&
 						file != null && (file.constructor != LocalFile ||
-						file.fileHandle != null))
+						file.fileHandle != null) && editorUi.mode != App.MODE_CODIO)
 					{	
 						menu.addSeparator(parent);
 						var item = this.addMenuItem(menu, 'synchronize', parent);
@@ -5303,11 +5330,15 @@
 						}
 					}
 					
-					this.addMenuItems(menu, ['-', 'save', 'saveAs', '-'], parent);
+					this.addMenuItems(menu, ['-', 'save'], parent);
+					if (editorUi.mode != App.MODE_CODIO) {
+						this.addMenuItems(menu, ['saveAs'], parent);
+					}
+					this.addMenuItems(menu, ['-'], parent);
 					
 					if (!mxClient.IS_CHROMEAPP && !EditorUi.isElectronApp &&
 						editorUi.getServiceName() == 'draw.io' &&
-						!editorUi.isOfflineApp() && file != null)
+						!editorUi.isOfflineApp() && file != null && editorUi.mode != App.MODE_CODIO)
 					{
 						this.addMenuItems(menu, ['share', '-'], parent);
 					}
@@ -5326,7 +5357,9 @@
 					}
 					else
 					{
-						this.addMenuItems(menu, ['makeCopy'], parent);
+						if (editorUi.mode != App.MODE_CODIO) {
+							this.addMenuItems(menu, ['makeCopy'], parent);
+						}
 
 						if (file != null)
 						{
@@ -5349,9 +5382,11 @@
 				menu.addSeparator(parent);
 				this.addSubmenu('embed', menu, parent);
 				this.addSubmenu('publish', menu, parent);
-				menu.addSeparator(parent);
-				this.addSubmenu('newLibrary', menu, parent);
-				this.addSubmenu('openLibraryFrom', menu, parent);
+				if (editorUi.mode != App.MODE_CODIO) {
+					menu.addSeparator(parent);
+					this.addSubmenu('newLibrary', menu, parent);
+					this.addSubmenu('openLibraryFrom', menu, parent);
+				}
 				
 				if (editorUi.isRevisionHistorySupported())
 				{
