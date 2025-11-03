@@ -6,6 +6,10 @@ env:
   REPOSITORY_NAME: ${{ github.event.repository.name }}
   ECR_REPOSITORY: codio/${{ github.event.repository.name }}
 
+permissions:
+  contents: read
+  id-token: write
+
 jobs:
   build-docker:
     name: "Build docker"
