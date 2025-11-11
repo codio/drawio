@@ -1,4 +1,4 @@
-FROM openjdk:11-jdk-slim AS build
+FROM eclipse-temurin:11-jdk AS build
 
 RUN apt-get update -y && \
 # this solves some weird issue with openjdk-11-jdk-headless
